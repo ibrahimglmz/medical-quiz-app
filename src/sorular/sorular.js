@@ -33,7 +33,7 @@ const sorular = {
     {
       soru: "Yanık durumunda ilk yapılması gereken nedir?",
       secenekler: [
-        "A) Yanık kreми sürmek",
+        "A) Yanık krem sürmek",
         "B) Yoğurt sürmek",
         "C) Soğuk su altında tutmak",
         "D) Sargı beziyle sarmak"
