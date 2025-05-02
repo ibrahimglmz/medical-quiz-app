@@ -11,7 +11,7 @@ const QuestionScreen = ({
   onAnswerSubmit = () => {} 
 }) => {
   const [heartRate, setHeartRate] = useState(80);
-  const [temperature, setTemperature] = useState(36.6);
+  const [temperature] = useState(36.6);
 
   useEffect(() => {
     const interval = setInterval(() => {

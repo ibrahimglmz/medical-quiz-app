@@ -38,7 +38,6 @@ function App() {
   const [correctAnswers, setCorrectAnswers] = useState(0); // Doğru cevap sayısı
   const [questionCount, setQuestionCount] = useState(0); // Toplam soru sayısı
   const [timeLeft, setTimeLeft] = useState(10);
-  const [showTimeoutPopup, setShowTimeoutPopup] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const timerRef = useRef(null);
 
@@ -73,7 +72,6 @@ function App() {
 
   // Süre dolduğunda
   const handleTimeOut = () => {
-    setShowTimeoutPopup(true);
     setAlertInfo({
       show: true,
       type: 'error',
@@ -83,7 +81,6 @@ function App() {
 
     setTimeout(() => {
       setAlertInfo({ show: false, type: '', message: '' });
-      setShowTimeoutPopup(false);
       setGameState('map');
       setCorrectAnswers(0);
       setQuestionCount(0);
@@ -112,20 +109,33 @@ function App() {
     setSelectedCharacter(character);
     
     try {
-      ambiansRef.current.play();
+      // Ses çalmadan önce mevcut durumu kontrol et
+      if (ambiansRef.current) {
+        ambiansRef.current.currentTime = 0;
+        await ambiansRef.current.play();
+      }
       
       // 10 saniye sonra sorulara geç
-      setTimeout(() => {
-        ambiansRef.current.pause();
-        ambiansRef.current.currentTime = 0;
+      const timer = setTimeout(async () => {
+        if (ambiansRef.current) {
+          try {
+            ambiansRef.current.pause();
+            ambiansRef.current.currentTime = 0;
+          } catch (error) {
+            console.error('Ambians ses durdurma hatası:', error);
+          }
+        }
+        
         setCurrentLevel(1);
         setCorrectAnswers(0);
         setQuestionCount(0);
         setCurrentQuestion(sorular[1][0]);
         setGameState('question');
         startTimer();
-        playNabizSesi(); // İlk soru için nabız sesini çal
+        await playNabizSesi(); // İlk soru için nabız sesini çal
       }, 10000);
+
+      return () => clearTimeout(timer);
     } catch (error) {
       console.error('Ses çalma hatası:', error);
       // Ses çalınamazsa direkt soru ekranına geç
@@ -139,31 +149,38 @@ function App() {
   };
 
   // Nabız sesini çal
-  const playNabizSesi = () => {
+  const playNabizSesi = async () => {
     try {
-      nabizRef.current.currentTime = 0; // Sesi başa sar
-      nabizRef.current.play();
+      if (nabizRef.current) {
+        nabizRef.current.currentTime = 0; // Sesi başa sar
+        await nabizRef.current.play();
+      }
     } catch (error) {
       console.error('Nabız sesi çalma hatası:', error);
     }
   };
 
-  // Soru değiştiğinde nabız sesini çal
+  // Component unmount olduğunda sesleri temizle
   useEffect(() => {
     if (gameState === 'question' && currentQuestion) {
       playNabizSesi();
     }
-  }, [currentQuestion]);
 
-  // Component unmount olduğunda sesleri temizle
-  useEffect(() => {
     return () => {
-      ambiansRef.current.pause();
-      nabizRef.current.pause();
-      ambiansRef.current.currentTime = 0;
-      nabizRef.current.currentTime = 0;
+      const currentAmbians = ambiansRef.current;
+      const currentNabiz = nabizRef.current;
+      
+      if (currentAmbians) {
+        currentAmbians.pause();
+        currentAmbians.currentTime = 0;
+      }
+      
+      if (currentNabiz) {
+        currentNabiz.pause();
+        currentNabiz.currentTime = 0;
+      }
     };
-  }, []);
+  }, [gameState, currentQuestion]);
 
   const handleCharacterSelect = (character) => {
     playAmbiansAndStartQuiz(character);
