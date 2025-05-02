@@ -115,7 +115,7 @@ function App() {
         await ambiansRef.current.play();
       }
       
-      // 10 saniye sonra sorulara geç
+      // 5 saniye sonra sorulara geç
       const timer = setTimeout(async () => {
         if (ambiansRef.current) {
           try {
@@ -133,7 +133,7 @@ function App() {
         setGameState('question');
         startTimer();
         await playNabizSesi(); // İlk soru için nabız sesini çal
-      }, 10000);
+      }, 5000);
 
       return () => clearTimeout(timer);
     } catch (error) {
