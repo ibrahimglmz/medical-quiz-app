@@ -2,7 +2,7 @@
   "name": "medical-exam-application",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/ibrahimglmz/medical-quiz-app.git",
+  "homepage": "https://ibrahimglmz.github.io/medical-quiz-app",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
