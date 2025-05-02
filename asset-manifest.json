@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ibrahimglmz/medical-quiz-app.git/static/css/main.0c96a78d.css",
+    "main.js": "/ibrahimglmz/medical-quiz-app.git/static/js/main.7e022a79.js",
+    "index.html": "/ibrahimglmz/medical-quiz-app.git/index.html",
+    "main.0c96a78d.css.map": "/ibrahimglmz/medical-quiz-app.git/static/css/main.0c96a78d.css.map",
+    "main.7e022a79.js.map": "/ibrahimglmz/medical-quiz-app.git/static/js/main.7e022a79.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0c96a78d.css",
+    "static/js/main.7e022a79.js"
+  ]
+}
