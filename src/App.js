@@ -312,7 +312,7 @@ function App() {
           <div className="celebration-content">
             <div className="celebration-icon">🎉</div>
             <div className="doctor-image">
-              <img src={`${process.env.PUBLIC_URL}/assets/happyDoctor.png`} alt="Başarılı Doktor" />
+              <img src="./assets/happyDoctor.png" alt="Başarılı Doktor" />
             </div>
             <h1 className="celebration-title">Muhteşem Başarı!</h1>
             <p className="celebration-message">
@@ -390,7 +390,7 @@ function App() {
         <div className="map-container">
           <div className="character-info">
             <div className="character-details">
-              <img src={`${process.env.PUBLIC_URL}${selectedCharacter?.image}`} alt={selectedCharacter?.name} />
+              <img src={`.${selectedCharacter?.image}`} alt={selectedCharacter?.name} />
               <h3>{selectedCharacter?.name}</h3>
             </div>
             <div className="level-info">
