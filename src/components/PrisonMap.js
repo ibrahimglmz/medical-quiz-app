@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import './PrisonMap.css';
 
 const levelImages = {
-  1: '/images/goAmbulance.jpeg',
-  2: '/images/ambulance.jpg',
-  3: '/images/hospital.png',
-  4: '/images/ameliyat.jpeg'
+  1: `${process.env.PUBLIC_URL}/images/goAmbulance.jpeg`,
+  2: `${process.env.PUBLIC_URL}/images/ambulance.jpg`,
+  3: `${process.env.PUBLIC_URL}/images/hospital.png`,
+  4: `${process.env.PUBLIC_URL}/images/ameliyat.jpeg`
 };
 
 const PrisonMap = ({ unlockedLevels, onLevelSelect, levelTitles, predefinedPositions }) => {
@@ -31,7 +31,7 @@ const PrisonMap = ({ unlockedLevels, onLevelSelect, levelTitles, predefinedPosit
 
   return (
     <div className="prison-map">
-      <img src="/assets/gameMaps.jpg" alt="Hastane Haritası" className="map-background" />
+      <img src={`${process.env.PUBLIC_URL}/assets/gameMaps.jpg`} alt="Hastane Haritası" className="map-background" />
       {locks.map((lock) => (
         <div
           key={lock.id}

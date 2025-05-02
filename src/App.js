@@ -42,8 +42,8 @@ function App() {
   const timerRef = useRef(null);
 
   // Ses referansları
-  const ambiansRef = useRef(new Audio('/assets/ambians.mp3'));
-  const nabizRef = useRef(new Audio('/assets/nabizAtisi.mp3'));
+  const ambiansRef = useRef(new Audio(`${process.env.PUBLIC_URL}/assets/ambians.mp3`));
+  const nabizRef = useRef(new Audio(`${process.env.PUBLIC_URL}/assets/nabizAtisi.mp3`));
 
   // Timer'ı başlat
   const startTimer = () => {
@@ -183,6 +183,8 @@ function App() {
   }, [gameState, currentQuestion]);
 
   const handleCharacterSelect = (character) => {
+    const audio = new Audio(`${process.env.PUBLIC_URL}/assets/ambians.mp3`);
+    audio.play();
     playAmbiansAndStartQuiz(character);
   };
 
@@ -314,7 +316,7 @@ function App() {
           <div className="celebration-content">
             <div className="celebration-icon">🎉</div>
             <div className="doctor-image">
-              <img src="/assets/happyDoctor.png" alt="Başarılı Doktor" />
+              <img src={`${process.env.PUBLIC_URL}/assets/happyDoctor.png`} alt="Başarılı Doktor" />
             </div>
             <h1 className="celebration-title">Muhteşem Başarı!</h1>
             <p className="celebration-message">
