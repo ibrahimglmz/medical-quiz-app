@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import './CharacterSelection.css';
 
 const characters = [
-  { id: 'man', name: 'Doktor', image: '/assets/man.jpg' },
+  { id: 'man', name: 'Öğrenci', image: '/assets/man.jpg' },
   { id: 'nurse', name: 'Hemşire', image: '/assets/nurse.png' },
   { id: 'police', name: 'Güvenlik', image: '/assets/police.jpg' },
   { id: 'teacher', name: 'Asistan Doktor', image: '/assets/teacher.png' },
-  { id: 'teacher2', name: 'Stajyer Doktor', image: '/assets/teacher2.png' }
+  { id: 'teacher2', name: 'Stajyer Doktor', image: '/assets/teacher2.png' },
+  { id: 'ambulansDriver', name: 'Ambulans Şoförü', image: '/assets/ambulansDriver.png' },
+  { id: 'people', name: 'Öğretim Görevlisi', image: '/assets/people.jpg' },
+  { id: 'student', name: 'Tıp Öğrencisi', image: '/assets/student.jpg' }
 ];
 
 const CharacterSelection = ({ onCharacterSelect }) => {
