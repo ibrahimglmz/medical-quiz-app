@@ -38,7 +38,7 @@ Quiz App'i yerel olarak çalıştırmak için aşağıdaki adımları takip edeb
 ## Canlı Yayın
 
 Quiz App'e aşağıdaki bağlantıdan erişebilirsiniz:
-- quiz-app-lac-theta.vercel.app
+- [quiz-app-lac-theta.vercel.app](https://ibrahimglmz.github.io/medical-quiz-app/)
 
 ## Katkıda Bulunma
 
