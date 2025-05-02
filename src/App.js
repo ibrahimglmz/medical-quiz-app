@@ -42,8 +42,8 @@ function App() {
   const timerRef = useRef(null);
 
   // Ses referansları
-  const ambiansRef = useRef(new Audio(`${process.env.PUBLIC_URL}/assets/ambians.mp3`));
-  const nabizRef = useRef(new Audio(`${process.env.PUBLIC_URL}/assets/nabizAtisi.mp3`));
+  const ambiansRef = useRef(new Audio('./assets/ambians.mp3'));
+  const nabizRef = useRef(new Audio('./assets/nabizAtisi.mp3'));
 
   // Timer'ı başlat
   const startTimer = () => {
@@ -182,7 +182,7 @@ function App() {
   }, [currentQuestion]);
 
   const handleCharacterSelect = (character) => {
-    const audio = new Audio(`${process.env.PUBLIC_URL}/assets/ambians.mp3`);
+    const audio = new Audio('./assets/ambians.mp3');
     audio.play();
     playAmbiansAndStartQuiz(character);
     setGameState('map');
