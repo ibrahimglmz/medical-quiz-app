@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import CharacterSelection from './components/CharacterSelection';
 import QuestionScreen from './components/QuestionScreen';
@@ -28,7 +29,7 @@ const levelIcons = {
 };
 
 function App() {
-  const [gameState, setGameState] = useState('character-selection'); // character-selection, map, question
+  const navigate = useNavigate();
   const [selectedCharacter, setSelectedCharacter] = useState(null);
   const [currentLevel, setCurrentLevel] = useState(null);
   const [unlockedLevels, setUnlockedLevels] = useState([1]); // İlk seviye açık başlar
@@ -81,7 +82,7 @@ function App() {
 
     setTimeout(() => {
       setAlertInfo({ show: false, type: '', message: '' });
-      setGameState('map');
+      navigate('/');
       setCorrectAnswers(0);
       setQuestionCount(0);
     }, 2000);
@@ -92,12 +93,12 @@ function App() {
   };
 
   const handleConfirm = () => {
-    setGameState('character-selection');
     setSelectedCharacter(null);
     setCurrentLevel(null);
     setUnlockedLevels([1]);
     setCurrentQuestion(null);
     setShowConfirm(false);
+    navigate('/');
   };
 
   const handleCancel = () => {
@@ -130,7 +131,7 @@ function App() {
         setCorrectAnswers(0);
         setQuestionCount(0);
         setCurrentQuestion(sorular[1][0]);
-        setGameState('question');
+        navigate('/question');
         startTimer();
         await playNabizSesi(); // İlk soru için nabız sesini çal
       }, 5000);
@@ -143,7 +144,7 @@ function App() {
       setCorrectAnswers(0);
       setQuestionCount(0);
       setCurrentQuestion(sorular[1][0]);
-      setGameState('question');
+      navigate('/question');
       startTimer();
     }
   };
@@ -162,7 +163,7 @@ function App() {
 
   // Component unmount olduğunda sesleri temizle
   useEffect(() => {
-    if (gameState === 'question' && currentQuestion) {
+    if (currentQuestion) {
       playNabizSesi();
     }
 
@@ -180,12 +181,13 @@ function App() {
         currentNabiz.currentTime = 0;
       }
     };
-  }, [gameState, currentQuestion]);
+  }, [currentQuestion]);
 
   const handleCharacterSelect = (character) => {
     const audio = new Audio(`${process.env.PUBLIC_URL}/assets/ambians.mp3`);
     audio.play();
     playAmbiansAndStartQuiz(character);
+    navigate('/map');
   };
 
   const handleLevelSelect = (levelId) => {
@@ -196,7 +198,7 @@ function App() {
       ...sorular[levelId][0],
       questionNumber: 1
     });
-    setGameState('question');
+    navigate('/question');
     startTimer();
   };
 
@@ -235,7 +237,7 @@ function App() {
               setShowCelebration(true);
               setTimeout(() => {
                 setShowCelebration(false);
-                setGameState('map');
+                navigate('/');
               }, 5000);
             } else {
               setAlertInfo({
@@ -246,7 +248,7 @@ function App() {
               });
               setTimeout(() => {
                 setAlertInfo({ show: false, type: '', message: '' });
-                setGameState('map');
+                navigate('/');
               }, 2000);
             }
           } else {
@@ -258,7 +260,7 @@ function App() {
             });
             setTimeout(() => {
               setAlertInfo({ show: false, type: '', message: '' });
-              setGameState('map');
+              navigate('/');
             }, 2000);
           }
           setCorrectAnswers(0);
@@ -287,7 +289,7 @@ function App() {
 
       setTimeout(() => {
         setAlertInfo({ show: false, type: '', message: '' });
-        setGameState('map');
+        navigate('/');
         setCorrectAnswers(0);
         setQuestionCount(0);
       }, 3000);
@@ -379,55 +381,54 @@ function App() {
         </div>
       )}
 
-      {gameState !== 'character-selection' && (
-        <button className="home-button" onClick={handleHomeClick}>
-          <span className="home-icon">🏠</span>
-          Ana Sayfa
-        </button>
-      )}
-
-      {gameState === 'character-selection' && (
-        <CharacterSelection onCharacterSelect={handleCharacterSelect} />
-      )}
-      
-      {gameState === 'map' && (
-        <div className="map-container">
-          <div className="character-info">
-            <div className="character-details">
-              <img src={`${process.env.PUBLIC_URL}${selectedCharacter.image}`} alt={selectedCharacter.name} />
-              <h3>{selectedCharacter.name}</h3>
+      <Routes>
+        <Route path="/" element={<CharacterSelection onCharacterSelect={handleCharacterSelect} />} />
+        <Route
+          path="/map"
+          element={
+            <div className="map-container">
+              <div className="character-info">
+                <div className="character-details">
+                  <img src={`${process.env.PUBLIC_URL}${selectedCharacter?.image}`} alt={selectedCharacter?.name} />
+                  <h3>{selectedCharacter?.name}</h3>
+                </div>
+                <div className="level-info">
+                  <h4>
+                    <span className="task-icon">📋</span>
+                    Mevcut Görev:
+                  </h4>
+                  <p className="current-mission">
+                    <span className="mission-icon">{getCurrentLevelIcon()}</span>
+                    {unlockedLevels.length === 1 ? levelTitles[1] :
+                     unlockedLevels.includes(4) ? levelTitles[4] :
+                     levelTitles[Math.max(...unlockedLevels)]}
+                  </p>
+                </div>
+              </div>
+              <PrisonMap
+                unlockedLevels={unlockedLevels}
+                onLevelSelect={handleLevelSelect}
+                levelTitles={levelTitles}
+                predefinedPositions={predefinedLockPositions}
+              />
             </div>
-            <div className="level-info">
-              <h4>
-                <span className="task-icon">📋</span>
-                Mevcut Görev:
-              </h4>
-              <p className="current-mission">
-                <span className="mission-icon">{getCurrentLevelIcon()}</span>
-                {unlockedLevels.length === 1 ? levelTitles[1] :
-                 unlockedLevels.includes(4) ? levelTitles[4] :
-                 levelTitles[Math.max(...unlockedLevels)]}
-              </p>
-            </div>
-          </div>
-          <PrisonMap
-            unlockedLevels={unlockedLevels}
-            onLevelSelect={handleLevelSelect}
-            levelTitles={levelTitles}
-            predefinedPositions={predefinedLockPositions}
-          />
-        </div>
-      )}
-      
-      {gameState === 'question' && currentQuestion && (
-        <QuestionScreen
-          question={currentQuestion}
-          currentQuestionIndex={questionCount}
-          totalQuestions={sorular[currentLevel].length}
-          timeLeft={timeLeft}
-          onAnswerSubmit={handleAnswer}
+          }
         />
-      )}
+        <Route
+          path="/question"
+          element={
+            currentQuestion && (
+              <QuestionScreen
+                question={currentQuestion}
+                currentQuestionIndex={questionCount}
+                totalQuestions={sorular[currentLevel]?.length}
+                timeLeft={timeLeft}
+                onAnswerSubmit={handleAnswer}
+              />
+            )
+          }
+        />
+      </Routes>
     </div>
   );
 }
