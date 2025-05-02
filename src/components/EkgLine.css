@@ -1,0 +1,111 @@
+.ekg-container {
+  width: 100%;
+  height: 120px;
+  position: relative;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.ekg-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.grid-line {
+  position: absolute;
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.grid-line.vertical {
+  width: 1px;
+  height: 100%;
+}
+
+.grid-line.horizontal {
+  width: 100%;
+  height: 1px;
+}
+
+/* 20 dikey çizgi için pozisyonlar */
+.grid-line.vertical:nth-child(1) { left: 5%; }
+.grid-line.vertical:nth-child(2) { left: 10%; }
+.grid-line.vertical:nth-child(3) { left: 15%; }
+.grid-line.vertical:nth-child(4) { left: 20%; }
+.grid-line.vertical:nth-child(5) { left: 25%; }
+.grid-line.vertical:nth-child(6) { left: 30%; }
+.grid-line.vertical:nth-child(7) { left: 35%; }
+.grid-line.vertical:nth-child(8) { left: 40%; }
+.grid-line.vertical:nth-child(9) { left: 45%; }
+.grid-line.vertical:nth-child(10) { left: 50%; }
+.grid-line.vertical:nth-child(11) { left: 55%; }
+.grid-line.vertical:nth-child(12) { left: 60%; }
+.grid-line.vertical:nth-child(13) { left: 65%; }
+.grid-line.vertical:nth-child(14) { left: 70%; }
+.grid-line.vertical:nth-child(15) { left: 75%; }
+.grid-line.vertical:nth-child(16) { left: 80%; }
+.grid-line.vertical:nth-child(17) { left: 85%; }
+.grid-line.vertical:nth-child(18) { left: 90%; }
+.grid-line.vertical:nth-child(19) { left: 95%; }
+.grid-line.vertical:nth-child(20) { left: 100%; }
+
+/* 10 yatay çizgi için pozisyonlar */
+.grid-line.horizontal:nth-child(21) { top: 10%; }
+.grid-line.horizontal:nth-child(22) { top: 20%; }
+.grid-line.horizontal:nth-child(23) { top: 30%; }
+.grid-line.horizontal:nth-child(24) { top: 40%; }
+.grid-line.horizontal:nth-child(25) { top: 50%; }
+.grid-line.horizontal:nth-child(26) { top: 60%; }
+.grid-line.horizontal:nth-child(27) { top: 70%; }
+.grid-line.horizontal:nth-child(28) { top: 80%; }
+.grid-line.horizontal:nth-child(29) { top: 90%; }
+.grid-line.horizontal:nth-child(30) { top: 100%; }
+
+.ekg-line {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ekg-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  animation: slideEkg 4s linear infinite;
+}
+
+.ekg-path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: drawEkg 2s linear infinite;
+}
+
+.ekg-path:nth-child(2) {
+  animation-delay: -1s;
+}
+
+@keyframes slideEkg {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes drawEkg {
+  from {
+    stroke-dashoffset: 400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+} 
