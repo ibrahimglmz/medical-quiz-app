@@ -394,7 +394,7 @@ function App() {
         <div className="map-container">
           <div className="character-info">
             <div className="character-details">
-              <img src={selectedCharacter.image} alt={selectedCharacter.name} />
+              <img src={`${process.env.PUBLIC_URL}${selectedCharacter.image}`} alt={selectedCharacter.name} />
               <h3>{selectedCharacter.name}</h3>
             </div>
             <div className="level-info">

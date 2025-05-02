@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import './CharacterSelection.css';
 
 const characters = [
-  { id: 'man', name: 'Öğrenci', image: `${process.env.PUBLIC_URL}/assets/man.jpg` },
-  { id: 'nurse', name: 'Hemşire', image: `${process.env.PUBLIC_URL}/assets/nurse.png` },
-  { id: 'police', name: 'Güvenlik', image: `${process.env.PUBLIC_URL}/assets/police.jpg` },
-  { id: 'teacher', name: 'Asistan Doktor', image: `${process.env.PUBLIC_URL}/assets/teacher.png` },
-  { id: 'teacher2', name: 'Stajyer Doktor', image: `${process.env.PUBLIC_URL}/assets/teacher2.png` },
-  { id: 'ambulansDriver', name: 'Ambulans Şoförü', image: `${process.env.PUBLIC_URL}/assets/ambulansDriver.png` },
-  { id: 'people', name: 'Öğretim Görevlisi', image: `${process.env.PUBLIC_URL}/assets/people.jpg` },
-  { id: 'student', name: 'Tıp Öğrencisi', image: `${process.env.PUBLIC_URL}/assets/student.jpg` }
+  { id: 'man', name: 'Öğrenci', image: '/assets/man.jpg' },
+  { id: 'nurse', name: 'Hemşire', image: '/assets/nurse.png' },
+  { id: 'police', name: 'Güvenlik', image: '/assets/police.jpg' },
+  { id: 'teacher', name: 'Asistan Doktor', image: '/assets/teacher.png' },
+  { id: 'teacher2', name: 'Stajyer Doktor', image: '/assets/teacher2.png' },
+  { id: 'ambulansDriver', name: 'Ambulans Şoförü', image: '/assets/ambulansDriver.png' },
+  { id: 'people', name: 'Öğretim Görevlisi', image: '/assets/people.jpg' },
+  { id: 'student', name: 'Tıp Öğrencisi', image: '/assets/student.jpg' }
 ];
 
 const CharacterSelection = ({ onCharacterSelect }) => {
@@ -17,7 +17,7 @@ const CharacterSelection = ({ onCharacterSelect }) => {
 
   const handleCharacterSelect = (character) => {
     setSelectedCharacter(character);
-    const audio = new Audio('/assets/ambians.mp3');
+    const audio = new Audio(`${process.env.PUBLIC_URL}/assets/ambians.mp3`);
     audio.play();
     onCharacterSelect(character);
   };
