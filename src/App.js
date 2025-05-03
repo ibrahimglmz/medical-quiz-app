@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import CharacterSelection from './components/CharacterSelection';
 import QuestionScreen from './components/QuestionScreen';
@@ -41,34 +41,156 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false);
   const timerRef = useRef(null);
 
-  // Ses referansları
-  const ambiansRef = useRef(new Audio('./assets/ambians.mp3'));
-  const nabizRef = useRef(new Audio('./assets/nabizAtisi.mp3'));
+  // Ses yönetimi için state'ler
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [isAmbiansPlaying, setIsAmbiansPlaying] = useState(false);
+  const [isNabizPlaying, setIsNabizPlaying] = useState(false);
 
-  // Timer'ı başlat
-  const startTimer = () => {
+  // Ses referansları
+  const ambiansRef = useRef(null);
+  const nabizRef = useRef(null);
+
+  // Ses yönetimi için memoized fonksiyonlar
+  const initializeAudio = useCallback(() => {
+    try {
+      // Ses dosyalarını yükle
+      ambiansRef.current = new Audio('./assets/ambians.mp3');
+      nabizRef.current = new Audio('./assets/nabizAtisi.mp3');
+
+      // Ses ayarlarını yapılandır
+      ambiansRef.current.volume = 0.5;
+      nabizRef.current.volume = 0.7;
+      
+      // Döngü ayarları
+      ambiansRef.current.loop = true;
+      nabizRef.current.loop = false;
+
+      // Hata yakalama
+      const handleError = (e) => {
+        console.error('Ses yükleme hatası:', e);
+        setIsSoundEnabled(false);
+      };
+
+      ambiansRef.current.addEventListener('error', handleError);
+      nabizRef.current.addEventListener('error', handleError);
+
+      // Ses bittiğinde state'i güncelle
+      ambiansRef.current.addEventListener('ended', () => setIsAmbiansPlaying(false));
+      nabizRef.current.addEventListener('ended', () => setIsNabizPlaying(false));
+
+    } catch (error) {
+      console.error('Ses sistemi başlatılamadı:', error);
+      setIsSoundEnabled(false);
+    }
+  }, []);
+
+  // Sesleri temizle
+  const cleanupAudio = useCallback(() => {
+    try {
+      if (ambiansRef.current) {
+        ambiansRef.current.pause();
+        ambiansRef.current.currentTime = 0;
+        setIsAmbiansPlaying(false);
+      }
+      if (nabizRef.current) {
+        nabizRef.current.pause();
+        nabizRef.current.currentTime = 0;
+        nabizRef.current.onended = null; // Event listener'ı temizle
+        setIsNabizPlaying(false);
+      }
+    } catch (error) {
+      console.error('Ses temizleme hatası:', error);
+    }
+  }, []);
+
+  // Ambians sesini çal
+  const playAmbians = useCallback(async () => {
+    if (!isSoundEnabled || isAmbiansPlaying) return;
+
+    try {
+      if (ambiansRef.current) {
+        ambiansRef.current.currentTime = 0;
+        await ambiansRef.current.play();
+        setIsAmbiansPlaying(true);
+      }
+    } catch (error) {
+      console.error('Ambians ses çalma hatası:', error);
+      setIsSoundEnabled(false);
+    }
+  }, [isSoundEnabled, isAmbiansPlaying]);
+
+  // Nabız sesini çal
+  const playNabizSesi = useCallback(async () => {
+    if (!isSoundEnabled || isNabizPlaying) return;
+
+    try {
+      if (nabizRef.current) {
+        nabizRef.current.currentTime = 0;
+        await nabizRef.current.play();
+        setIsNabizPlaying(true);
+
+        // Nabız sesinin süresini kontrol et ve bittiğinde state'i güncelle
+        nabizRef.current.onended = () => {
+          setIsNabizPlaying(false);
+          // Eğer hala soru ekranındaysa tekrar çal
+          if (gameState === 'question') {
+            playNabizSesi();
+          }
+        };
+      }
+    } catch (error) {
+      console.error('Nabız sesi çalma hatası:', error);
+      setIsNabizPlaying(false);
+    }
+  }, [isSoundEnabled, isNabizPlaying, gameState]);
+
+  // Component mount/unmount yönetimi
+  useEffect(() => {
+    initializeAudio();
+    return () => {
+      cleanupAudio();
+    };
+  }, [initializeAudio, cleanupAudio]);
+
+  // GameState değişimini izle
+  useEffect(() => {
+    // Soru ekranı kapandığında nabız sesini durdur
+    if (gameState !== 'question') {
+      if (nabizRef.current) {
+        nabizRef.current.pause();
+        nabizRef.current.currentTime = 0;
+        setIsNabizPlaying(false);
+      }
+    } else {
+      // Soru ekranı açıldığında nabız sesini başlat
+      playNabizSesi();
+    }
+  }, [gameState, playNabizSesi]);
+
+  // Timer yönetimi için memoized fonksiyon
+  const startTimer = useCallback(() => {
     setTimeLeft(10);
-    if (timerRef.current) clearInterval(timerRef.current);
+    clearTimer();
     
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          clearInterval(timerRef.current);
+          clearTimer();
           handleTimeOut();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-  };
+  }, []);
 
-  // Timer'ı temizle
-  const clearTimer = () => {
+  // Timer cleanup fonksiyonu
+  const clearTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  };
+  }, []);
 
   // Süre dolduğunda
   const handleTimeOut = () => {
@@ -103,90 +225,38 @@ function App() {
     setShowConfirm(false);
   };
 
-  // Ambians sesini çal ve bitince soru ekranına geç
-  const playAmbiansAndStartQuiz = async (character) => {
+  // Ses çalma fonksiyonu optimize edildi
+  const playAmbiansAndStartQuiz = useCallback(async (character) => {
     setSelectedCharacter(character);
     
     try {
-      // Ses çalmadan önce mevcut durumu kontrol et
-      if (ambiansRef.current) {
-        ambiansRef.current.currentTime = 0;
-        await ambiansRef.current.play();
-      }
+      await playAmbians();
       
-      // 5 saniye sonra sorulara geç
-      const timer = setTimeout(async () => {
-        if (ambiansRef.current) {
-          try {
-            ambiansRef.current.pause();
-            ambiansRef.current.currentTime = 0;
-          } catch (error) {
-            console.error('Ambians ses durdurma hatası:', error);
-          }
-        }
-        
+      setTimeout(async () => {
+        cleanupAudio();
+        setGameState('question');
         setCurrentLevel(1);
         setCorrectAnswers(0);
         setQuestionCount(0);
         setCurrentQuestion(sorular[1][0]);
-        setGameState('question');
         startTimer();
-        await playNabizSesi(); // İlk soru için nabız sesini çal
+        await playNabizSesi();
       }, 5000);
-
-      return () => clearTimeout(timer);
     } catch (error) {
-      console.error('Ses çalma hatası:', error);
-      // Ses çalınamazsa direkt soru ekranına geç
+      console.error('Quiz başlatma hatası:', error);
+      setGameState('question');
       setCurrentLevel(1);
       setCorrectAnswers(0);
       setQuestionCount(0);
       setCurrentQuestion(sorular[1][0]);
-      setGameState('question');
       startTimer();
     }
-  };
+  }, [playAmbians, cleanupAudio, playNabizSesi, startTimer]);
 
-  // Nabız sesini çal
-  const playNabizSesi = async () => {
-    try {
-      if (nabizRef.current) {
-        nabizRef.current.currentTime = 0; // Sesi başa sar
-        await nabizRef.current.play();
-      }
-    } catch (error) {
-      console.error('Nabız sesi çalma hatası:', error);
-    }
-  };
-
-  // Component unmount olduğunda sesleri temizle
-  useEffect(() => {
-    if (currentQuestion) {
-      playNabizSesi();
-    }
-
-    return () => {
-      const currentAmbians = ambiansRef.current;
-      const currentNabiz = nabizRef.current;
-      
-      if (currentAmbians) {
-        currentAmbians.pause();
-        currentAmbians.currentTime = 0;
-      }
-      
-      if (currentNabiz) {
-        currentNabiz.pause();
-        currentNabiz.currentTime = 0;
-      }
-    };
-  }, [currentQuestion]);
-
-  const handleCharacterSelect = (character) => {
-    const audio = new Audio('./assets/ambians.mp3');
-    audio.play();
+  const handleCharacterSelect = useCallback((character) => {
     playAmbiansAndStartQuiz(character);
     setGameState('map');
-  };
+  }, [playAmbiansAndStartQuiz]);
 
   const handleLevelSelect = (levelId) => {
     setCurrentLevel(levelId);
@@ -198,14 +268,20 @@ function App() {
     });
     setGameState('question');
     startTimer();
+    // Yeni seviye başladığında nabız sesi otomatik başlayacak (useEffect ile)
   };
 
   const handleAnswer = (answer) => {
     clearTimer();
+    // Cevap verildiğinde nabız sesini durdur
+    if (nabizRef.current) {
+      nabizRef.current.pause();
+      nabizRef.current.currentTime = 0;
+      setIsNabizPlaying(false);
+    }
+
     const currentQuestionData = sorular[currentLevel][questionCount];
     const isCorrect = answer === currentQuestionData.dogruCevap;
-    
-    setQuestionCount(prev => prev + 1);
     
     if (isCorrect) {
       setCorrectAnswers(prev => prev + 1);
@@ -216,8 +292,9 @@ function App() {
         icon: '💚'
       });
 
-      setTimeout(() => {
+      setTimeout(async () => {
         setAlertInfo({ show: false, type: '', message: '' });
+        setQuestionCount(prev => prev + 1);
         
         if (questionCount + 1 >= 4) {
           if (correctAnswers + 1 >= 4) {
@@ -228,48 +305,38 @@ function App() {
                 }
                 return prev;
               });
-            }
-            
-            // Tüm seviyeler tamamlandıysa
-            if (currentLevel === 4) {
-              setShowCelebration(true);
-              setTimeout(() => {
-                setShowCelebration(false);
-              }, 5000);
-            } else {
+              
               setAlertInfo({
                 show: true,
                 type: 'success',
                 message: 'Tebrikler! Bir sonraki seviyeye geçtiniz.',
                 icon: '🏆'
               });
+            } else {
+              setShowCelebration(true);
               setTimeout(() => {
-                setAlertInfo({ show: false, type: '', message: '' });
-              }, 2000);
+                setShowCelebration(false);
+                setGameState('map');
+              }, 5000);
             }
-          } else {
-            setAlertInfo({
-              show: true,
-              type: 'error',
-              message: 'Seviyeyi geçmek için tüm soruları doğru cevaplamalısınız.',
-              icon: '❌'
-            });
-            setTimeout(() => {
-              setAlertInfo({ show: false, type: '', message: '' });
-            }, 2000);
           }
-          setCorrectAnswers(0);
-          setQuestionCount(0);
+          setTimeout(() => {
+            setGameState('map');
+            setCorrectAnswers(0);
+            setQuestionCount(0);
+            setAlertInfo({ show: false, type: '', message: '' });
+            cleanupAudio();
+          }, 2000);
         } else {
           setCurrentQuestion({
             ...sorular[currentLevel][questionCount + 1],
             questionNumber: questionCount + 2
           });
           startTimer();
+          // Yeni soru için nabız sesi otomatik başlayacak (useEffect ile)
         }
       }, 2000);
     } else {
-      // Yanlış cevap durumu
       const dogruSecenekMetni = currentQuestionData.secenekler.find(
         secenek => secenek.startsWith(currentQuestionData.dogruCevap)
       );
@@ -286,6 +353,8 @@ function App() {
         setAlertInfo({ show: false, type: '', message: '' });
         setCorrectAnswers(0);
         setQuestionCount(0);
+        setGameState('map');
+        cleanupAudio();
       }, 3000);
     }
   };
@@ -299,11 +368,6 @@ function App() {
       return levelIcons[Math.max(...unlockedLevels)];
     }
   };
-
-  // Component unmount olduğunda timer'ı temizle
-  useEffect(() => {
-    return () => clearTimer();
-  }, []);
 
   return (
     <div className="app">
