@@ -48,10 +48,22 @@
   background: rgba(52, 152, 219, 0.05);
 }
 
+.image-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
 .character-card img {
   width: 100%;
-  height: 200px;
-  object-fit: cover;
+  max-width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
   border-radius: 8px;
   transition: transform 0.3s ease;
   will-change: transform;
@@ -99,8 +111,10 @@
   }
 
   .character-card img {
-    width: 150px;
-    height: 150px;
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+    max-height: 150px;
     margin-bottom: 1.2rem;
   }
 
@@ -132,8 +146,10 @@
   }
 
   .character-card img {
-    width: 110px;
-    height: 110px;
+    width: 100%;
+    max-width: 110px;
+    height: auto;
+    max-height: 110px;
     border-radius: 12px;
     margin-bottom: 1rem;
   }
@@ -163,8 +179,10 @@
   }
 
   .character-card img {
-    width: 90px;
-    height: 90px;
+    width: 100%;
+    max-width: 90px;
+    height: auto;
+    max-height: 90px;
     margin-bottom: 0.8rem;
   }
 

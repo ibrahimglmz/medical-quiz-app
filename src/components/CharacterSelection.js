@@ -58,12 +58,14 @@ const CharacterSelection = ({ onCharacterSelect }) => {
             className={`character-card ${selectedCharacter?.id === character.id ? 'selected' : ''}`}
             onClick={() => handleCharacterSelect(character)}
           >
-            <img 
-              src={character.image} 
-              alt={character.name}
-              loading="lazy"
-              decoding="async"
-            />
+            <div className="image-container">
+              <img 
+                src={character.image} 
+                alt={character.name}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
             <h3>{character.name}</h3>
           </div>
         ))}
