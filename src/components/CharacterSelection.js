@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './CharacterSelection.css';
 
 const characters = [
-  { id: 'teacher', name: 'Asistan Öğretmen', image: './assets/teacher.png' },
-  { id: 'teacher2', name: 'Stajyer Öğretmen', image: './assets/teacher2.png' },
   { id: 'people', name: 'Öğretim Görevlisi', image: './assets/people.jpg' },
 ];
 
